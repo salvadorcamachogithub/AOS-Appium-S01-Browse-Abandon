@@ -1,7 +1,5 @@
 name: Core SDP Integration With GitHub Actions
 
-# Runs only after the FT Lab Appium workflow completes.
-# No push, pull_request, or manual workflow_dispatch trigger is defined here.
 on:
   workflow_run:
     workflows: ["FT Lab Appium Mobile Test"]
@@ -17,10 +15,6 @@ permissions:
 
 jobs:
   core_sdp_integration_job:
-    # Publish when either:
-    # 1) Core SDP initiated the test and executionId is nonzero, or
-    # 2) A manual bootstrap/publication run explicitly set publishToCoreSDP=true.
-    # Normal manual Appium runs (executionId=0 and publishToCoreSDP=false) are skipped.
     if: >-
       github.event.workflow_run.conclusion != 'cancelled' &&
       (
@@ -46,5 +40,7 @@ jobs:
           serverBaseUrl: 'https://github.com/salvadorcamachogithub/AOS-Appium-S01-Browse-Abandon'
 
           pipelineNamePattern: '${workflow_name}'
-          unitTestResultsGlobPattern: '**/target/surefire-reports/*.xml'
+          # The upstream artifact contains only Surefire XML test reports, so use a
+          # path-independent pattern after the artifact is downloaded/extracted.
+          unitTestResultsGlobPattern: '**/*.xml'
           testingFramework: 'testNG'

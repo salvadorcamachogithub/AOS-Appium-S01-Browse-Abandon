@@ -74,3 +74,13 @@ jobs:
 
       - name: Run Appium test
         run: mvn test
+
+      # Core SDP reads test reports from artifacts attached to this upstream workflow run.
+      # always() also preserves Surefire reports when a test fails.
+      - name: Upload Maven test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: sdp-test-results
+          path: target/surefire-reports/*.xml
+          if-no-files-found: error
