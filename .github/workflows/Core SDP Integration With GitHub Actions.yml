@@ -3,7 +3,7 @@ name: Core SDP Integration With GitHub Actions
 on:
   workflow_run:
     workflows: ["FT Lab Appium Mobile Test"]
-    types: [completed]
+    types: [requested, in_progress, completed]
 
 env:
   NODE_TLS_REJECT_UNAUTHORIZED: 1
@@ -15,8 +15,6 @@ permissions:
 
 jobs:
   core_sdp_integration_job:
-    if: github.event.workflow_run.conclusion != 'cancelled'
-
     runs-on: ubuntu-latest
 
     name: CoreSDPIntegrationGitHubActions#${{ github.event.action }}#${{ github.event.workflow_run.id }}
@@ -25,10 +23,12 @@ jobs:
       - name: Publish FT Lab Appium pipeline to OpenText Core SDP
         uses: opentext/sdp-github-actions-integration@v26.4.0
         id: githubActionsIntegration
+
         with:
           octaneUrl: ${{ vars.CSDP_SERVER }}
           octaneSharedSpace: ${{ vars.CSDP_SHARED_SPACE }}
           octaneWorkspace: ${{ vars.CSDP_WORKSPACE }}
+
           octaneClientId: ${{ secrets.ALM_OCTANE_CLIENT_ID }}
           octaneClientSecret: ${{ secrets.ALM_OCTANE_CLIENT_SECRET }}
 
