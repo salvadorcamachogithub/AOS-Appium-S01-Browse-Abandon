@@ -12,6 +12,7 @@ permissions:
   actions: read
   contents: read
   pull-requests: read
+  deployments: write
 
 jobs:
   core_sdp_integration_job:
