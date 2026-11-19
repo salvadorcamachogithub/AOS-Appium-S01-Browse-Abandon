@@ -37,11 +37,3 @@ jobs:
 
       - name: Run Appium test
         run: mvn test
-
-      - name: Upload Maven test results
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: sdp-test-results
-          path: target/surefire-reports/*.xml
-          if-no-files-found: error
