@@ -1,6 +1,6 @@
 name: FT Lab Appium Mobile Test
 
-run-name: FT Lab Appium Mobile Test | executionId=${{ inputs.executionId }}
+run-name: FT Lab Appium Mobile Test | executionId=${{ inputs.executionId }} | publishToCoreSDP=${{ inputs.publishToCoreSDP }}
 
 on:
   workflow_dispatch:
@@ -29,6 +29,12 @@ on:
         type: number
         default: 0
 
+      publishToCoreSDP:
+        description: Publish this manual execution to Core SDP
+        required: false
+        type: boolean
+        default: false
+
 jobs:
   appium-test:
     runs-on: ubuntu-latest
@@ -55,6 +61,16 @@ jobs:
         shell: bash
         run: |
           echo "execution_parameter:: $(echo '${{ toJson(github.event.inputs) }}' | jq -c .)"
+
+      - name: Validate FT Lab configuration
+        shell: bash
+        run: |
+          test -n "$FTLAB_SERVER" || { echo "FTLAB_SERVER is missing"; exit 1; }
+          test -n "$FTLAB_UDID" || { echo "FTLAB_UDID is missing"; exit 1; }
+          test -n "$FTLAB_CLIENT_ID" || { echo "FTLAB_CLIENT_ID is missing"; exit 1; }
+          test -n "$FTLAB_CLIENT_SECRET" || { echo "FTLAB_CLIENT_SECRET is missing"; exit 1; }
+          test -n "$FTLAB_TENANT_ID" || { echo "FTLAB_TENANT_ID is missing"; exit 1; }
+          echo "FT Lab configuration is available."
 
       - name: Run Appium test
         run: mvn test

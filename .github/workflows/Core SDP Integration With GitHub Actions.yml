@@ -1,17 +1,15 @@
 name: Core SDP Integration With GitHub Actions
 
-# Publish only Core SDP-triggered executions of the FT Lab Appium workflow.
-# This integration does not run for push or pull_request events.
+# Runs only after the FT Lab Appium workflow completes.
+# No push, pull_request, or manual workflow_dispatch trigger is defined here.
 on:
   workflow_run:
     workflows: ["FT Lab Appium Mobile Test"]
     types: [completed]
 
-# Do not disable TLS validation for the OpenText SaaS endpoint.
 env:
   NODE_TLS_REJECT_UNAUTHORIZED: 1
 
-# Minimum permissions required by the current SDP CI Integration action.
 permissions:
   actions: read
   contents: read
@@ -19,11 +17,16 @@ permissions:
 
 jobs:
   core_sdp_integration_job:
-    # FT Lab Appium Mobile Test must include executionId in its run-name.
-    # Manual runs use executionId=0 and are intentionally excluded.
+    # Publish when either:
+    # 1) Core SDP initiated the test and executionId is nonzero, or
+    # 2) A manual bootstrap/publication run explicitly set publishToCoreSDP=true.
+    # Normal manual Appium runs (executionId=0 and publishToCoreSDP=false) are skipped.
     if: >-
       github.event.workflow_run.conclusion != 'cancelled' &&
-      !endsWith(github.event.workflow_run.display_title, 'executionId=0')
+      (
+        contains(github.event.workflow_run.display_title, 'publishToCoreSDP=true') ||
+        !contains(github.event.workflow_run.display_title, 'executionId=0')
+      )
 
     runs-on: ubuntu-latest
     name: CoreSDPIntegrationGitHubActions#${{ github.event.action }}#${{ github.event.workflow_run.id }}
@@ -33,20 +36,15 @@ jobs:
         uses: opentext/sdp-github-actions-integration@v26.4.0
         id: githubActionsIntegration
         with:
-          # OpenText Core SDP connection data retained from the original workflow.
           octaneUrl: 'https://almoctane-ams.saas.microfocus.com/'
           octaneSharedSpace: 211010
           octaneWorkspace: 75001
           octaneClientId: ${{ secrets.ALM_OCTANE_CLIENT_ID }}
           octaneClientSecret: ${{ secrets.ALM_OCTANE_CLIENT_SECRET }}
 
-          # Automatically provided GitHub token.
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-
-          # Existing repository URL retained from the original workflow.
           serverBaseUrl: 'https://github.com/salvadorcamachogithub/AOS-Appium-S01-Browse-Abandon'
 
-          # Core SDP pipeline and Selenium/Appium test-result configuration.
           pipelineNamePattern: '${workflow_name}'
           unitTestResultsGlobPattern: '**/target/surefire-reports/*.xml'
           testingFramework: 'testNG'
