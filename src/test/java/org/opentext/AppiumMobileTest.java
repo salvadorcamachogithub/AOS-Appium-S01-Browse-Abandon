@@ -92,7 +92,9 @@ public class AppiumMobileTest {
 
         WebElement el6 = driver.findElement(AppiumBy.id("com.Advantage.aShopping:id/imageViewMenu"));
         el6.click();
-        WebElement el7 = driver.findElement(AppiumBy.id("com.Advantage.aShopping:id/textViewMenuHome"));
+        //WebElement el7 = driver.findElement(AppiumBy.id("com.Advantage.aShopping:id/textViewMenuHome"));
+        // Artificial Error
+        WebElement el7 = driver.findElement(AppiumBy.id("com.Advantage.aShopping:id/textViewMenuHom"));
         el7.click();
     }
 }
