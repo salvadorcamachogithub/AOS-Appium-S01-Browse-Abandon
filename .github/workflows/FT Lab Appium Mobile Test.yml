@@ -1,0 +1,59 @@
+name: FT Lab Appium Mobile Test
+
+run-name: FT Lab Appium Mobile Test | executionId=${{ inputs.executionId }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      testsToRun:
+        description: Tests selected for execution by Core SDP
+        required: false
+        type: string
+        default: ''
+
+      suiteId:
+        description: Core SDP test suite ID
+        required: false
+        type: number
+        default: 0
+
+      suiteRunId:
+        description: Core SDP suite run ID
+        required: false
+        type: number
+        default: 0
+
+      executionId:
+        description: Core SDP execution ID
+        required: false
+        type: number
+        default: 0
+
+jobs:
+  appium-test:
+    runs-on: ubuntu-latest
+
+    env:
+      FTLAB_SERVER: ${{ vars.FTLAB_SERVER }}
+      FTLAB_CLIENT_ID: ${{ secrets.FTLAB_CLIENT_ID }}
+      FTLAB_CLIENT_SECRET: ${{ secrets.FTLAB_CLIENT_SECRET }}
+      FTLAB_TENANT_ID: ${{ secrets.FTLAB_TENANT_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Log Core SDP execution parameters
+        shell: bash
+        run: |
+          echo "execution_parameter:: $(echo '${{ toJson(github.event.inputs) }}' | jq -c .)"
+
+      - name: Run Appium test
+        run: mvn test
