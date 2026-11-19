@@ -15,18 +15,14 @@ permissions:
 
 jobs:
   core_sdp_integration_job:
-    if: >-
-      github.event.workflow_run.conclusion != 'cancelled' &&
-      (
-        contains(github.event.workflow_run.display_title, 'publishToCoreSDP=true') ||
-        !contains(github.event.workflow_run.display_title, 'executionId=0')
-      )
+    if: github.event.workflow_run.conclusion != 'cancelled'
 
     runs-on: ubuntu-latest
+
     name: CoreSDPIntegrationGitHubActions#${{ github.event.action }}#${{ github.event.workflow_run.id }}
 
     steps:
-      - name: Publish FT Lab Appium results to OpenText Core SDP
+      - name: Publish FT Lab Appium pipeline to OpenText Core SDP
         uses: opentext/sdp-github-actions-integration@v26.4.0
         id: githubActionsIntegration
         with:
@@ -37,10 +33,8 @@ jobs:
           octaneClientSecret: ${{ secrets.ALM_OCTANE_CLIENT_SECRET }}
 
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+
           serverBaseUrl: 'https://github.com/salvadorcamachogithub/AOS-Appium-S01-Browse-Abandon'
 
           pipelineNamePattern: '${workflow_name}'
-          # The upstream artifact contains only Surefire XML test reports, so use a
-          # path-independent pattern after the artifact is downloaded/extracted.
           unitTestResultsGlobPattern: '**/*.xml'
-          testingFramework: 'testNG'

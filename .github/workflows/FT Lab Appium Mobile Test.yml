@@ -1,39 +1,7 @@
 name: FT Lab Appium Mobile Test
 
-run-name: FT Lab Appium Mobile Test | executionId=${{ inputs.executionId }} | publishToCoreSDP=${{ inputs.publishToCoreSDP }}
-
 on:
   workflow_dispatch:
-    inputs:
-      testsToRun:
-        description: Tests selected for execution by Core SDP
-        required: false
-        type: string
-        default: ''
-
-      suiteId:
-        description: Core SDP test suite ID
-        required: false
-        type: number
-        default: 0
-
-      suiteRunId:
-        description: Core SDP suite run ID
-        required: false
-        type: number
-        default: 0
-
-      executionId:
-        description: Core SDP execution ID
-        required: false
-        type: number
-        default: 0
-
-      publishToCoreSDP:
-        description: Publish this manual execution to Core SDP
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   appium-test:
@@ -57,11 +25,6 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Log Core SDP execution parameters
-        shell: bash
-        run: |
-          echo "execution_parameter:: $(echo '${{ toJson(github.event.inputs) }}' | jq -c .)"
-
       - name: Validate FT Lab configuration
         shell: bash
         run: |
@@ -75,8 +38,6 @@ jobs:
       - name: Run Appium test
         run: mvn test
 
-      # Core SDP reads test reports from artifacts attached to this upstream workflow run.
-      # always() also preserves Surefire reports when a test fails.
       - name: Upload Maven test results
         if: always()
         uses: actions/upload-artifact@v7
